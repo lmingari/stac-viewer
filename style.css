@@ -1,0 +1,160 @@
+@import "node_modules/ol/ol.css";
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+#map-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+.controls-panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 15px;
+    margin: 5px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    height: fit-content;
+}
+
+.select-control {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 0.7em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.select-control select {
+  flex: 1;
+  margin-left: 10px;
+  border: 2px solid #aaa;
+  background: #eee;
+  transition: 0.4s;
+  border-radius: 5px;
+} 
+
+select:hover,
+select:focus {
+  background: #aaa;
+}
+
+.raster-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.raster-info h4 {
+    margin: 0 0 5px 0;
+    color: #667eea;
+    font-size: 0.8em;
+}
+
+.raster-info p {
+    margin: 2px 0;
+    color: #666;
+    font-size: 0.8em;
+}
+
+.slideshow-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.7em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #f8f9fa;
+    color: #333;
+    border: 2px solid #dee2e6;
+}
+
+.btn-secondary:hover {
+    background: #e9ecef;
+    transform: translateY(-1px);
+}
+
+.colorbar-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.4);
+    padding: 5px;
+    border-radius: 8px;
+    z-index: 1000;
+    min-width: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.colorbar-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.colorbar-title {
+    display: flex;
+    width: 1em;
+    font-size: 12px;
+    margin-left: 10px;
+    color: #667eea;
+    font-weight: 600;
+    transform: rotate(-90deg);
+    transform-origin: left bottom;
+    white-space: nowrap; /* Prevents text wrapping */
+    line-height: 1;
+    justify-content: center; /* Adjust horizontal positioning post-rotation */
+}
+
+.colorbar {
+    width: 20px;
+    height: 200px;
+    margin: 0 0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+
+.colorbar-labels {
+    font-size: 12px;
+    height: 200px;
+    margin-left: 6px;
+    position: relative;
+    color: #555;
+}
