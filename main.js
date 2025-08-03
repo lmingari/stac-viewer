@@ -13,6 +13,9 @@ import Feature from 'ol/Feature.js';
 import {fromExtent} from 'ol/geom/Polygon.js';
 import {Stroke, Style} from 'ol/style.js';
 
+// Reference to my current layer
+let currentLayer = null;
+
 // STAC item URL
 const urlItem = "results.json";
 
@@ -31,8 +34,6 @@ class LayerList extends LayerGroup {
         this.#length = this.getLayers().getLength();
         this.currentRaster = 0;
         this.showCurrent();
-        prevBtn.onclick = () => this.showPrevious();
-        nextBtn.onclick = () => this.showNext();
     }
 
     get length() {
@@ -60,6 +61,7 @@ class LayerList extends LayerGroup {
 }
 
 function initMap() {
+    // Create basmap
     const map = new Map({
       target: 'map-container',
       layers: [
@@ -77,22 +79,18 @@ function initMap() {
     const stacItem = getItemFromJSON(urlItem);
 
     // Create vector layer for bbox
-    stacItem.then(item => createVectorLayer(item,map))
-            .then(l => map.addLayer(l));
+    stacItem
+        .then(item => createVectorLayer(item,map))
+        .then(vLayer => map.addLayer(vLayer));
 
-    // Get grouped assets for every variable and
-    // generate rasters for selected variable
-    const groupedAssets = stacItem.then(getAssetsFromItem)
-    groupedAssets.then(createVariableSelector);
-    let layerGroup = groupedAssets.then(createRasterLayer);
-    layerGroup.then(l => map.addLayer(l));
-
-    // add event for variable selector
-    varSelect.addEventListener('change', event => {
-        layerGroup.then(l => map.removeLayer(l));
-        layerGroup = groupedAssets.then(createRasterLayer);
-        layerGroup.then(l => map.addLayer(l));
-    });
+    // Create raster layers
+    stacItem
+        .then(getAssetsFromItem)
+        .then(gAssets => {
+            createVariableSelector(gAssets,map);
+            currentLayer = createRasterLayer(gAssets);
+            map.addLayer(currentLayer);
+        });
 }
 
 async function getItemFromJSON(url) {
@@ -102,7 +100,7 @@ async function getItemFromJSON(url) {
         const item = await response.json();
         return item;
     } catch (error) {
-        console.error('Error fetching STAC item:', error);
+        console.error('Error fetching STAC item');
         throw error;
     }
 }
@@ -146,14 +144,20 @@ function getAssetsFromItem(item) {
     return groupedAssets;
 }
 
-function createVariableSelector(groupedAssets) {
-    const options = Object.keys(groupedAssets);
+function createVariableSelector(groupedAssets,map) {
     // Add new options
-    options.forEach(option => {
+    for (const option in groupedAssets){
         const opt = document.createElement('option');
         opt.value = option;
         opt.textContent = option;
         varSelect.appendChild(opt);
+    }
+
+    // Add event for variable selector
+    varSelect.addEventListener('change', () => {
+        if (currentLayer) { map.removeLayer(currentLayer); }
+        currentLayer = createRasterLayer(groupedAssets);
+        map.addLayer(currentLayer);
     });
 }
 
@@ -217,7 +221,7 @@ function createColorbar(variable) {
             label  = "SO2 column mass [DU]";
             break;
         case "tephra_cloud_top":
-            levels = [5000,5500,6000,6500,7000,7500,8000,8500,9000];
+            levels = [4000,4500,5000,5500,6000,6500,7000,7500,8000,8500,9000];
             cmap   = 'viridis';
             label  = "Tephra cloud top height [m]";
             break;
@@ -257,8 +261,10 @@ function drawColorBar(stops,label) {
     const barWidth  = 20;
     const segmentHeight = barHeight / steps;
 
-    // Clear previous labels
+    // Set new title and clear previous colorbar
+    titleContainer.innerHTML = label;
     labelsContainer.innerHTML = '';
+    colorbarCtx.reset();
 
     for (let i = 0; i < steps; i++) {
       const y = barHeight - (i+1)*segmentHeight;
@@ -282,8 +288,6 @@ function drawColorBar(stops,label) {
     labelsContainer.style.width = 'auto';
     const contentWidth = labelsContainer.scrollWidth;
     labelsContainer.style.width = contentWidth + 'px';
-
-    titleContainer.innerHTML = label;
 }
 
 function getColorStops(cmap, levels) {
@@ -301,6 +305,15 @@ function getColorStops(cmap, levels) {
   }
   return stops;
 }
+
+// Attach event listeners
+nextBtn.addEventListener("click", () => {
+    if (currentLayer) { currentLayer.showNext(); } 
+});
+
+prevBtn.addEventListener("click", () => {
+    if(currentLayer) { currentLayer.showPrevious(); }
+});
 
 // Initialize the application
 window.addEventListener("load", initMap);
